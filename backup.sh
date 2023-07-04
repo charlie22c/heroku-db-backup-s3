@@ -47,14 +47,14 @@ fi
 # set bucket path and db url based on alias
 case $DB_ALIAS in
     analytics)
+    echo "analytics detected"
     DB_URL_FOR_BACKUP=$ANALYTICS_DATABASE_URL
     DB_BACKUP_S3_BUCKET_PATH="pi-analytics-production-backups"
     DB_NAME="analytics"
-    echo "analytics detected"
     ;;
     primary)
     echo "primary detected"
-    DB_URL_FOR_BACKUP="replace_me"
+    DB_URL_FOR_BACKUP=$PRIMARY_DATABASE_URL
     DB_BACKUP_S3_BUCKET_PATH="pi-primary-production-backups"
     DB_NAME="primary"
     ;;
@@ -63,10 +63,6 @@ case $DB_ALIAS in
     exit 1
     ;;
 esac
-
-echo "test"
-echo $DB_URL_FOR_BACKUP
-echo "test end"
 
 if [[ -z "$DB_BACKUP_S3_BUCKET_PATH" ]]; then
   echo "Missing DB_BACKUP_S3_BUCKET_PATH variable"
