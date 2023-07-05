@@ -75,7 +75,7 @@ fi
 
 printf "${Green}Start dump${EC}"
 
-pg_dump $DB_URL_FOR_BACKUP | gzip | openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" > /tmp/"${DB_NAME}_${FILENAME}".gz.enc
+pg_dump -Fc $DB_URL_FOR_BACKUP | gzip | openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" > /tmp/"${DB_NAME}_${FILENAME}".gz.enc
 
 printf "${Green}Move dump to AWS${EC}"
 AWS_ACCESS_KEY_ID=$DB_BACKUP_AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$DB_BACKUP_AWS_SECRET_ACCESS_KEY /app/vendor/bin/aws --region $DB_BACKUP_AWS_DEFAULT_REGION s3 cp /tmp/"${DB_NAME}_${FILENAME}".gz.enc s3://$DB_BACKUP_S3_BUCKET_PATH/"${DB_NAME}_${FILENAME}".gz.enc
