@@ -4,8 +4,8 @@ PYTHONHOME=/app/vendor/awscli/
 DB_ALIAS=""
 Green='\033[0;32m'
 EC='\033[0m'
-FILENAME=`date +%Y-%m-%d_%H-%M`
-echo $FILENAME
+FILENAME=`date +%Y_%m_%d`
+
 # terminate script on any fails
 set -e
 
