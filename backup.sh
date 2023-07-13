@@ -79,7 +79,7 @@ fi
 
 printf "${GREEN}Start dump${EC}"
 
-FILENAME="${DB_NAME}_${DATE}_KEY_${DB_BACKUP_ENC_KEY_VERSION}.dump.gz.enc"
+FILENAME="${DB_NAME}_${DATE}_key_${DB_BACKUP_ENC_KEY_VERSION}.dump.gz.enc"
 pg_dump -Fc --compress=9 $DB_URL_FOR_BACKUP | openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" > /tmp/$FILENAME
 
 printf "${GREEN}Move dump to AWS${EC}"
