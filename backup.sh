@@ -2,9 +2,9 @@
 
 PYTHONHOME=/app/vendor/awscli/
 DB_ALIAS=""
-Green='\033[0;32m'
+GREEN='\033[0;32m'
 EC='\033[0m'
-FILENAME=`date +%Y_%m_%d`
+DATE=`date +%Y_%m_%d`
 
 # terminate script on any fails
 set -e
@@ -43,6 +43,10 @@ if [[ -z "$DB_BACKUP_ENC_KEY" ]]; then
   echo "Missing DB_BACKUP_ENC_KEY variable"
   exit 1
 fi
+if [[ -z "$DB_BACKUP_ENC_KEY_VERSION" ]]; then
+  echo "Missing DB_BACKUP_ENC_KEY_VERSION variable"
+  exit 1
+fi
 
 # set bucket path and db url based on alias
 case $DB_ALIAS in
@@ -73,12 +77,13 @@ if [[ -z "$DB_URL_FOR_BACKUP" ]] ; then
   exit 1
 fi
 
-printf "${Green}Start dump${EC}"
+printf "${GREEN}Start dump${EC}"
 
-pg_dump -Fc $DB_URL_FOR_BACKUP | gzip | openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" > /tmp/"${DB_NAME}_${FILENAME}".dump.gz.enc
+FILENAME="${DB_NAME}_${DATE}_KEY_${DB_BACKUP_ENC_KEY_VERSION}.dump.gz.enc"
+pg_dump -Fc --compress=9 $DB_URL_FOR_BACKUP | openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" > /tmp/$FILENAME
 
-printf "${Green}Move dump to AWS${EC}"
-AWS_ACCESS_KEY_ID=$DB_BACKUP_AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$DB_BACKUP_AWS_SECRET_ACCESS_KEY /app/vendor/bin/aws --region $DB_BACKUP_AWS_DEFAULT_REGION s3 cp /tmp/"${DB_NAME}_${FILENAME}".dump.gz.enc s3://$DB_BACKUP_S3_BUCKET_PATH/"${DB_NAME}_${FILENAME}".dump.gz.enc
+printf "${GREEN}Move dump to AWS${EC}"
+AWS_ACCESS_KEY_ID=$DB_BACKUP_AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$DB_BACKUP_AWS_SECRET_ACCESS_KEY /app/vendor/bin/aws --region $DB_BACKUP_AWS_DEFAULT_REGION s3 cp /tmp/$FILENAME s3://$DB_BACKUP_S3_BUCKET_PATH/$FILENAME
 
 # cleaning after all
-rm -rf /tmp/"${DB_NAME}_${FILENAME}".dump.gz.enc
+rm -rf /tmp/$FILENAME
