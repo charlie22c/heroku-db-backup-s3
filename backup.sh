@@ -39,8 +39,8 @@ if [[ -z "$DB_BACKUP_AWS_DEFAULT_REGION" ]]; then
   echo "Missing DB_BACKUP_AWS_DEFAULT_REGION variable"
   exit 1
 fi
-if [[ -z "$DB_BACKUP_ENC_KEY" ]]; then
-  echo "Missing DB_BACKUP_ENC_KEY variable"
+if [[ -z "$DB_BACKUP_ENC_KEY_VALUE" ]]; then
+  echo "Missing DB_BACKUP_ENC_KEY_VALUE variable"
   exit 1
 fi
 if [[ -z "$DB_BACKUP_ENC_KEY_VERSION" ]]; then
@@ -80,7 +80,7 @@ fi
 printf "${GREEN}Start dump${EC}"
 
 FILENAME="${DB_NAME}_${DATE}_key_${DB_BACKUP_ENC_KEY_VERSION}.dump.gz.enc"
-pg_dump -Fc --compress=9 $DB_URL_FOR_BACKUP | openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" > /tmp/$FILENAME
+pg_dump -Fc --compress=9 $DB_URL_FOR_BACKUP | openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY_VALUE" > /tmp/$FILENAME
 
 printf "${GREEN}Move dump to AWS${EC}"
 AWS_ACCESS_KEY_ID=$DB_BACKUP_AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$DB_BACKUP_AWS_SECRET_ACCESS_KEY /app/vendor/bin/aws --region $DB_BACKUP_AWS_DEFAULT_REGION s3 cp /tmp/$FILENAME s3://$DB_BACKUP_S3_BUCKET_PATH/$FILENAME
